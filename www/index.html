@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brian Niel Construction — Client Portal</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#000000;
+    --on-primary:#ffffff;
+    --secondary:#855300;
+    --secondary-container:#fea619;
+    --on-secondary-container:#684000;
+    --background:#f7f9fb;
+    --on-background:#191c1e;
+    --surface:#f7f9fb;
+    --surface-bright:#f7f9fb;
+    --surface-container-lowest:#ffffff;
+    --surface-container-low:#f2f4f6;
+    --surface-container:#eceef0;
+    --surface-container-high:#e6e8ea;
+    --surface-variant:#e0e3e5;
+    --outline:#747878;
+    --outline-variant:#c4c7c7;
+    --error:#ba1a1a;
+    --radius-sm:2px;
+    --radius-md:6px;
+    --radius-lg:10px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  .material-symbols-outlined{ font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; font-size:20px; line-height:1; vertical-align:middle; }
+  .material-symbols-outlined.fill{ font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24; }
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--background);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:32px 12px;
+    color:var(--on-background);
+  }
+  h1,h2,h3{ font-family:'Hanken Grotesk',sans-serif; font-weight:700; letter-spacing:-0.01em; }
+  .caps{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--outline); }
+
+  .phone{ width:390px; height:820px; background:var(--primary); border-radius:40px; padding:10px; box-shadow:0 30px 60px -20px rgba(0,0,0,.45); position:relative; }
+  .screen{ width:100%; height:100%; background:var(--surface); border-radius:32px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+  .notch{ position:absolute; top:10px; left:50%; transform:translateX(-50%); width:110px; height:24px; background:var(--primary); border-radius:0 0 14px 14px; z-index:60; }
+  .statusbar{ height:40px; flex-shrink:0; display:flex; align-items:flex-end; justify-content:space-between; padding:0 22px 5px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; background:var(--surface-container-lowest); z-index:40; }
+
+  .view{ display:none; flex:1; min-height:0; flex-direction:column; }
+  .view.active{ display:flex; }
+  .scroll{ flex:1; overflow-y:auto; -ms-overflow-style:none; scrollbar-width:none; }
+  .scroll::-webkit-scrollbar{ display:none; }
+
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--surface-container-lowest); border-bottom:1px solid var(--outline-variant); flex-shrink:0; }
+  .topbar .proj{ display:flex; align-items:center; gap:8px; }
+  .topbar .proj .material-symbols-outlined{ font-size:19px; }
+  .topbar h2{ font-size:15px; }
+  .avatar{ width:32px; height:32px; border-radius:50%; background:var(--surface-container-high); border:1px solid var(--outline-variant); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .back-link{ display:flex; align-items:center; gap:4px; font-size:12.5px; font-weight:600; color:var(--outline); cursor:pointer; }
+
+  #view-splash{ background:var(--surface-container-lowest); align-items:center; justify-content:center; }
+  .splash-inner{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 30px; }
+  .splash-logo{ width:120px; height:120px; border-radius:var(--radius-sm); background:var(--surface-container-lowest); border:1px solid var(--surface-variant); display:flex; align-items:center; justify-content:center; margin-bottom:28px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .splash-logo .mark{ width:64px; height:64px; border:2.5px solid var(--primary); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; }
+  .splash-logo .mark span{ transform:rotate(-45deg); font-family:'Hanken Grotesk'; font-weight:800; font-size:20px; }
+  .splash-inner h1{ font-size:26px; margin-bottom:8px;}
+  .splash-inner p{ font-size:14px; color:var(--outline); max-width:250px; }
+  .splash-btn{ margin-top:48px; width:100%; background:var(--primary); color:var(--on-primary); border:none; padding:15px; border-radius:var(--radius-sm); font-weight:600; font-size:14px; font-family:'Inter'; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .splash-sub{ margin-top:14px; font-family:'JetBrains Mono'; font-size:10.5px; color:var(--outline); text-transform:uppercase; letter-spacing:.12em; }
+
+  .auth-wrap{ padding:28px 22px; flex:1; display:flex; flex-direction:column; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--outline); margin-bottom:7px; font-family:'JetBrains Mono'; }
+  .field input{ width:100%; padding:13px 14px; border:1.5px solid var(--outline-variant); border-radius:var(--radius-sm); font-family:'Inter'; font-size:14px; background:var(--surface-container-lowest); }
+  .field input:focus{ outline:none; border-color:var(--primary); }
+  .field-note{ font-size:11px; color:var(--outline); margin-top:6px; }
+  .primary-btn{ width:100%; background:var(--primary); color:var(--on-primary); border:none; padding:15px; border-radius:var(--radius-sm); font-weight:600; font-size:14px; margin-top:6px; font-family:'Inter'; }
+  .login-note{ text-align:center; font-size:11.5px; color:var(--outline); margin-top:16px; line-height:1.5; }
+
+  .card{ background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:var(--radius-lg); padding:18px; }
+  .pad{ padding:16px 16px 0; }
+
+  .ring-wrap{ display:flex; flex-direction:column; align-items:center; }
+  .ring-wrap svg{ width:150px; height:150px; }
+  .ring-label{ margin-top:-100px; display:flex; flex-direction:column; align-items:center; }
+  .ring-pct{ font-family:'Hanken Grotesk'; font-weight:800; font-size:34px; }
+  .ring-sub{ font-size:11.5px; color:var(--outline); margin-top:2px; }
+
+  .tl-item{ display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-left:2px solid var(--outline-variant); margin-left:8px; padding-left:18px; position:relative; }
+  .tl-item:last-child{ border-left-color:transparent; }
+  .tl-dot{ position:absolute; left:-9px; top:12px; width:16px; height:16px; border-radius:50%; background:var(--surface-container-lowest); border:2px solid var(--outline-variant); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .tl-dot.done{ background:var(--secondary-container); border-color:var(--secondary-container); }
+  .tl-dot.active{ border-color:var(--secondary-container); box-shadow:0 0 0 3px rgba(254,166,25,.25); }
+  .tl-dot .material-symbols-outlined{ font-size:10px; color:var(--on-secondary-container); }
+  .tl-item h3{ font-size:13.5px; }
+  .tl-item .st{ font-family:'JetBrains Mono'; font-size:10px; color:var(--outline); margin-top:2px; letter-spacing:.03em; }
+  .tl-item .st.now{ color:var(--secondary); font-weight:600; }
+
+  .update-photo{ position:relative; height:160px; }
+  .update-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .update-overlay{ position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.65), transparent 55%); display:flex; align-items:flex-end; padding:14px; }
+  .update-overlay p{ background:rgba(255,255,255,.94); padding:9px 11px; border-radius:var(--radius-sm); font-size:12px; line-height:1.4; }
+
+  .qa-grid{ display:flex; flex-direction:column; gap:10px; }
+  .qa-card{ background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:var(--radius-lg); padding:15px; cursor:pointer; }
+  .qa-icon{ width:32px; height:32px; border-radius:50%; background:var(--surface-container-high); display:flex; align-items:center; justify-content:center; margin-bottom:8px; }
+  .qa-card h3{ font-size:13.5px; margin-bottom:3px; }
+  .qa-card p{ font-size:11.5px; color:var(--outline); }
+  .qa-link{ margin-top:10px; font-size:11.5px; font-weight:700; color:var(--secondary); display:flex; align-items:center; gap:3px; }
+
+  .site-select{ display:flex; align-items:center; gap:8px; background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:var(--radius-sm); padding:10px 12px; font-size:12.5px; font-weight:600; }
+  .cam-badge{ display:flex; align-items:center; gap:6px; padding:6px 10px; background:var(--surface-container-low); border:1px solid var(--surface-container-high); border-radius:var(--radius-sm); }
+  .cam-dot{ width:7px;height:7px;border-radius:50%; background:var(--secondary-container); }
+  .video-frame{ position:relative; border-radius:var(--radius-lg); overflow:hidden; background:var(--surface-container); aspect-ratio:16/10; }
+  .video-frame img{ width:100%; height:100%; object-fit:cover; }
+  .live-badge{ position:absolute; top:12px; left:12px; background:var(--error); color:#fff; font-family:'JetBrains Mono'; font-size:10px; font-weight:700; padding:4px 8px; border-radius:var(--radius-sm); display:flex; align-items:center; gap:5px; }
+  .toggle-row{ display:flex; gap:4px; background:var(--surface-container-low); border:1px solid var(--outline-variant); border-radius:var(--radius-md); padding:4px; }
+  .toggle-chip{ flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:8px; border-radius:var(--radius-sm); font-size:12px; font-weight:600; }
+  .toggle-chip.on{ background:var(--surface-container-lowest); border:1px solid var(--outline-variant); }
+  .mini-card{ display:flex; align-items:center; gap:10px; }
+  .mini-icon{ width:44px; height:44px; border-radius:var(--radius-sm); background:var(--surface-container-high); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+  .folder-row{ display:flex; align-items:center; gap:12px; padding:14px; border:1px solid var(--outline-variant); border-radius:var(--radius-md); background:var(--surface-container-lowest); margin-top:10px; }
+  .folder-icon{ width:38px;height:38px; border-radius:var(--radius-sm); background:var(--surface-container-high); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .folder-row .fname{ font-size:13.5px; font-weight:600; }
+  .folder-row .fmeta{ font-size:11px; color:var(--outline); margin-top:2px; font-family:'JetBrains Mono'; }
+  .doc-strip{ display:flex; gap:9px; overflow-x:auto; margin-top:10px; }
+  .doc-thumb{ flex-shrink:0; width:74px; height:92px; border-radius:var(--radius-sm); border:1px solid var(--outline-variant); background:var(--surface-container-lowest); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+  .doc-thumb span{ font-size:9px; color:var(--outline); font-weight:600; text-align:center; padding:0 4px; }
+
+  .log-card{ border:1px solid var(--outline-variant); border-radius:var(--radius-lg); background:var(--surface-container-lowest); overflow:hidden; margin-bottom:12px; }
+  .log-card img{ width:100%; height:150px; object-fit:cover; display:block; }
+  .log-card .body{ padding:13px 15px; }
+  .log-card .top-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .log-card .phase-pill{ font-family:'JetBrains Mono'; font-size:9.5px; font-weight:700; background:var(--secondary-container); color:var(--on-secondary-container); padding:3px 8px; border-radius:var(--radius-sm); }
+  .log-card .date{ font-size:10.5px; color:var(--outline); font-family:'JetBrains Mono'; }
+  .log-card p{ font-size:13px; line-height:1.5; color:var(--on-background); }
+  .log-card .pm{ display:flex; align-items:center; gap:7px; margin-top:9px; font-size:11px; font-weight:600; color:var(--outline); }
+  .pm-dot{ width:20px;height:20px;border-radius:50%; background:var(--primary); color:#fff; font-size:8.5px; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono'; }
+
+  .fin-num{ font-family:'Hanken Grotesk'; font-weight:800; font-size:24px; }
+  .budget-bar{ height:8px; border-radius:4px; background:var(--surface-container); overflow:hidden; margin-top:10px; }
+  .budget-bar .fill{ height:100%; background:var(--primary); }
+  .budget-legend{ display:flex; justify-content:space-between; margin-top:8px; font-family:'JetBrains Mono'; font-size:10.5px; color:var(--outline); }
+  .co-item{ border:1px solid var(--outline-variant); border-radius:var(--radius-md); background:var(--surface-container-lowest); padding:13px 14px; margin-top:10px; position:relative; overflow:hidden; }
+  .co-item.pending::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--secondary-container); }
+  .co-top{ display:flex; justify-content:space-between; gap:10px; }
+  .co-top .name{ font-size:12.5px; font-weight:700; }
+  .co-top .amt{ font-family:'JetBrains Mono'; font-weight:600; font-size:12.5px; white-space:nowrap; }
+  .co-desc{ font-size:11px; color:var(--outline); margin-top:3px; }
+  .co-status{ display:inline-flex; align-items:center; gap:4px; margin-top:9px; font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:var(--radius-sm); }
+  .co-status.approved{ background:var(--surface-container-high); color:var(--primary); }
+  .co-status.pending{ background:var(--secondary-container); color:var(--on-secondary-container); }
+  .pay-btn{ margin-top:14px; width:100%; background:var(--secondary-container); color:var(--on-secondary-container); border:none; padding:14px; border-radius:var(--radius-sm); font-weight:700; font-size:13.5px; display:flex; align-items:center; justify-content:center; gap:8px; }
+
+  .chat-head{ display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--outline-variant); background:var(--surface-container-lowest); flex-shrink:0; }
+  .chat-head .n{ font-size:13.5px; font-weight:700; }
+  .chat-head .r{ font-family:'JetBrains Mono'; font-size:10px; color:var(--outline); }
+  .msgs{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; background:var(--surface-bright); }
+  .msg{ max-width:80%; padding:11px 14px; border-radius:var(--radius-md); font-size:13px; line-height:1.45; }
+  .msg.them{ background:var(--surface-container); align-self:flex-start; border:1px solid var(--outline-variant); }
+  .msg.me{ background:var(--primary); color:var(--on-primary); align-self:flex-end; }
+  .msg-time{ font-family:'JetBrains Mono'; font-size:9.5px; color:var(--outline); margin-top:3px; }
+  .msg-attach{ display:flex; align-items:center; gap:8px; background:var(--surface-bright); border:1px solid var(--outline-variant); border-radius:var(--radius-sm); padding:8px 10px; margin-top:8px; font-size:11px; font-weight:600; }
+  .chat-input{ display:flex; gap:8px; padding:12px 14px 16px; border-top:1px solid var(--outline-variant); background:var(--surface-container-lowest); flex-shrink:0; }
+  .chat-input input{ flex:1; border:1.5px solid var(--outline-variant); border-radius:var(--radius-sm); padding:11px 14px; font-size:12.5px; font-family:'Inter'; }
+  .chat-input button{ width:38px;height:38px; border-radius:var(--radius-sm); background:var(--secondary-container); border:none; display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--on-secondary-container); }
+
+  .reward-card{ background:var(--surface-container-lowest); border:1px solid var(--outline-variant); border-radius:var(--radius-lg); padding:16px; }
+  .reward-card p{ font-size:12.5px; color:var(--outline); margin:6px 0 10px; line-height:1.5; }
+  .rw-bar{ height:6px; background:var(--surface-container); border-radius:3px; overflow:hidden; margin-top:6px; }
+  .rw-bar .fill{ height:100%; background:var(--secondary-container); }
+  .trivia-card{ margin-top:12px; }
+  .trivia-card .head{ display:flex; gap:10px; align-items:flex-start; }
+  .trivia-icon{ width:34px;height:34px; border-radius:var(--radius-sm); background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .trivia-opt{ width:100%; text-align:left; padding:11px 13px; border:1px solid var(--outline-variant); border-radius:var(--radius-sm); font-size:12.5px; font-weight:600; background:var(--surface-container-lowest); margin-top:8px; display:flex; justify-content:space-between; align-items:center; }
+  .trivia-opt.correct{ border-color:var(--secondary-container); background:#FFF4E2; }
+  .game-item{ display:flex; align-items:center; gap:12px; padding:14px; border:1px solid var(--outline-variant); border-radius:var(--radius-lg); background:var(--surface-container-lowest); margin-top:10px; }
+  .game-item .gi{ width:36px;height:36px;border-radius:var(--radius-sm); background:var(--surface-container-high); display:flex; align-items:center; justify-content:center; }
+
+  #milestone-modal{ position:absolute; inset:0; z-index:100; background:var(--primary); display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px; }
+  #milestone-modal.show{ display:flex; }
+  .badge-plate{ width:120px;height:120px; border-radius:50%; border:3px solid var(--secondary-container); display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+  .badge-plate .material-symbols-outlined{ font-size:44px; color:var(--secondary-container); }
+  .badge-eyebrow{ color:var(--secondary-container); font-family:'JetBrains Mono'; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:8px; }
+  .badge-title{ color:#fff; font-size:23px; }
+  .badge-sub{ color:#9a978f; font-size:12px; margin-top:8px; max-width:250px; line-height:1.5; }
+  .badge-btns{ display:flex; gap:10px; margin-top:28px; }
+  .badge-btns button{ padding:12px 20px; border-radius:var(--radius-sm); font-weight:700; font-size:12.5px; border:none; font-family:'Inter'; }
+  .b-share{ background:var(--secondary-container); color:var(--on-secondary-container); }
+  .b-close{ background:transparent; color:#fff; border:1.5px solid #4a4a4a !important; }
+
+  .tabbar{ flex-shrink:0; display:flex; background:var(--surface-container-lowest); border-top:1px solid var(--outline-variant); padding:8px 4px 12px; }
+  .tab{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; font-family:'Inter'; color:var(--outline); font-size:9.5px; font-weight:600; padding:4px; }
+  .tab.on{ color:var(--secondary); }
+  .hint{ position:fixed; bottom:14px; left:50%; transform:translateX(-50%); font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--outline); background:var(--surface-container-lowest); padding:6px 12px; border-radius:999px; border:1px solid var(--outline-variant); white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="screen">
+
+    <div class="view active" id="view-splash">
+      <div class="splash-inner">
+        <div class="splash-logo"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7B-YbQc0-c7Vm0H3t2uTEpQ46K5Jstl5m_9C7OSGF0m8jbn-2rjfSj2-eRPP5li2vmFJUCubjNdJmTKYCLXSyt5akb7QYdjMFBhsnHB2Et6YkQlOJEqeVwbck-1tKR_3g9eqiD4zmNUNV20Ygvef54TFvz2v5LXGcu2Nl7OJ2vnaLMyU-GKl1Ugf0GF5HAhpTfBJuyyQCasS2WT-8hqjbDFwYkKj4LRXrPEfujou7B9kJ8oTD_CVLYQLum5Uj1wnLmQGamT6RLy8BwA" alt="Brian Niel Construction Logo" style="width:100%; height:100%; object-fit:contain;"></div>
+        <h1>Client Portal</h1>
+        <p>Project oversight, milestone tracking, and documentation in one place.</p>
+        <button class="splash-btn" onclick="go('signup')">Get Started <span class="material-symbols-outlined" style="font-size:17px;">arrow_forward</span></button>
+        <div class="splash-sub">Secure Access</div>
+      </div>
+    </div>
+
+    <div class="view" id="view-signup">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="auth-wrap">
+        <div class="back-link" onclick="go('splash')" style="margin-bottom:20px;"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> Back</div>
+        <div class="caps">Step 1 of 1</div>
+        <h2 style="font-size:20px; margin-top:8px;">Set up your account</h2>
+        <p style="font-size:12px; color:var(--outline); margin-top:6px;">One login per project — this keeps every update tied to a single homeowner record.</p>
+        <div style="margin-top:18px;">
+          <div class="field"><label>Full name</label><input type="text" value="Sarah Alden"></div>
+          <div class="field"><label>Home / project address</label><input type="text" value="124 Highland Estate"></div>
+          <div class="field"><label>Date of birth</label><input type="text" value="—— / —— / ————">
+            <div class="field-note">We'll surprise you on move-in season 🎉</div>
+          </div>
+        </div>
+        <button class="primary-btn" onclick="go('home'); showTab('home')">Create account</button>
+        <div class="login-note">Already have access?<br>Contact your Project Manager for an invite link.</div>
+      </div>
+    </div>
+
+    <div class="view" id="view-home">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="topbar">
+        <div class="proj"><span class="material-symbols-outlined">architecture</span><h2>Project: Highland Estate</h2></div>
+        <div class="avatar"><span class="material-symbols-outlined" style="font-size:16px; color:var(--outline);">person</span></div>
+      </div>
+      <div class="scroll">
+        <div class="pad">
+          <div class="card" style="display:flex; flex-direction:column; align-items:center;">
+            <div class="caps" style="align-self:flex-start; margin-bottom:10px;">Overall progress</div>
+            <div class="ring-wrap">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--surface-variant)" stroke-width="8"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--secondary-container)" stroke-width="8"
+                  stroke-dasharray="251.2" stroke-dashoffset="87.9" stroke-linecap="square"
+                  transform="rotate(-90 50 50)"/>
+              </svg>
+              <div class="ring-label">
+                <div class="ring-pct">65%</div>
+                <div class="ring-sub">Complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pad">
+          <div class="card">
+            <div class="caps" style="margin-bottom:4px;">Project milestones</div>
+            <div style="margin-top:10px;">
+              <div class="tl-item"><div class="tl-dot done" onclick="openMilestone()"><span class="material-symbols-outlined">check</span></div><div><h3>Foundation</h3><div class="st">COMPLETED SEP 12</div></div></div>
+              <div class="tl-item"><div class="tl-dot done" onclick="openMilestone()"><span class="material-symbols-outlined">check</span></div><div><h3>Framing</h3><div class="st">COMPLETED OCT 05</div></div></div>
+              <div class="tl-item"><div class="tl-dot active"></div><div><h3>Roofing</h3><div class="st now">IN PROGRESS</div></div></div>
+              <div class="tl-item"><div class="tl-dot"></div><div><h3 style="color:var(--outline);">Finishes</h3><div class="st">PENDING</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pad">
+          <div class="caps" style="margin-bottom:8px; display:block;">Latest field update</div>
+          <div class="card" style="padding:0; overflow:hidden; cursor:pointer;" onclick="go('logs')">
+            <div class="update-photo">
+              <img src="https://images.unsplash.com/photo-1541976590-713941681591?w=500&q=60">
+              <div class="update-overlay"><p>Roofing trusses are being installed today. Forecast looks clear for completion by Friday.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pad" style="padding-bottom:18px;">
+          <div class="qa-grid">
+            <div class="qa-card" onclick="go('finance')">
+              <div class="qa-icon" style="background:var(--secondary-container);"><span class="material-symbols-outlined" style="color:var(--on-secondary-container); font-size:17px;">receipt_long</span></div>
+              <h3>Review Invoice #1042</h3>
+              <p>Draw request for framing materials and labor.</p>
+              <div class="qa-link">Review &amp; approve <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span></div>
+            </div>
+            <div class="qa-card" onclick="showTab('docs')">
+              <div class="qa-icon"><span class="material-symbols-outlined" style="font-size:17px;">palette</span></div>
+              <h3>Fixture Selections</h3>
+              <p>3 items require your selection by next Tuesday.</p>
+              <div class="qa-link" style="color:var(--primary);">View options <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div class="view" id="view-camera">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="topbar">
+        <div class="proj"><span class="material-symbols-outlined">architecture</span><h2>Project: Highland Estate</h2></div>
+        <div class="avatar"><span class="material-symbols-outlined" style="font-size:16px; color:var(--outline);">person</span></div>
+      </div>
+      <div class="scroll">
+        <div class="pad" style="padding-bottom:0;">
+          <div class="site-select"><span class="material-symbols-outlined" style="font-size:16px;">home_work</span> 124 Highland Estate <span class="material-symbols-outlined" style="font-size:15px; margin-left:auto; color:var(--outline);">expand_more</span></div>
+        </div>
+        <div class="pad" style="padding-bottom:0;">
+          <div class="cam-badge" style="width:fit-content;"><span class="cam-dot"></span><span class="caps" style="color:var(--on-background);">CAM-01 ONLINE</span></div>
+        </div>
+        <div class="pad">
+          <div class="video-frame">
+            <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=60">
+            <div class="live-badge"><span class="material-symbols-outlined fill" style="font-size:9px;">fiber_manual_record</span>LIVE</div>
+          </div>
+        </div>
+        <div class="pad">
+          <div class="toggle-row">
+            <div class="toggle-chip on"><span class="material-symbols-outlined" style="font-size:15px;">videocam</span>Live</div>
+            <div class="toggle-chip"><span class="material-symbols-outlined" style="font-size:15px;">timelapse</span>Time-lapse</div>
+            <div class="toggle-chip"><span class="material-symbols-outlined" style="font-size:15px;">inventory_2</span>Archives</div>
+          </div>
+        </div>
+        <div class="pad">
+          <div class="card mini-card">
+            <div class="mini-icon"><span class="material-symbols-outlined">partly_cloudy_day</span></div>
+            <div>
+              <div style="font-family:'Hanken Grotesk'; font-weight:800; font-size:18px;">68°F — clear</div>
+              <div class="caps" style="margin-top:2px;">Wind 12mph SW · 0% precip</div>
+            </div>
+          </div>
+        </div>
+        <div class="pad" style="padding-bottom:16px;">
+          <div class="card mini-card">
+            <div class="mini-icon"><span class="material-symbols-outlined">motion_sensor_active</span></div>
+            <div>
+              <div style="font-size:13px; font-weight:700;">Material delivery logged</div>
+              <div class="caps" style="margin-top:2px;">14:15 EST · subcontractor arrived 07:30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div class="view" id="view-docs">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="topbar">
+        <div class="proj"><span class="material-symbols-outlined">architecture</span><h2>Document Vault</h2></div>
+        <div class="avatar"><span class="material-symbols-outlined" style="font-size:16px; color:var(--outline);">person</span></div>
+      </div>
+      <div class="scroll pad" style="padding-bottom:16px;">
+        <div class="folder-row"><div class="folder-icon"><span class="material-symbols-outlined">architecture</span></div><div><div class="fname">Blueprints</div><div class="fmeta">14 FILES · UPDATED AUG 9</div></div></div>
+        <div class="folder-row"><div class="folder-icon"><span class="material-symbols-outlined">palette</span></div><div><div class="fname">Material Selections</div><div class="fmeta">27 FILES · UPDATED AUG 14</div></div></div>
+        <div class="folder-row"><div class="folder-icon"><span class="material-symbols-outlined">description</span></div><div><div class="fname">Contracts</div><div class="fmeta">6 FILES · UPDATED JUN 2</div></div></div>
+
+        <div class="caps" style="margin-top:22px; display:block;">Recently viewed</div>
+        <div class="doc-strip">
+          <div class="doc-thumb"><span class="material-symbols-outlined">description</span><span>Site Plan</span></div>
+          <div class="doc-thumb"><span class="material-symbols-outlined">description</span><span>Elevation A</span></div>
+          <div class="doc-thumb"><span class="material-symbols-outlined">description</span><span>Countertops</span></div>
+          <div class="doc-thumb"><span class="material-symbols-outlined">description</span><span>Fixtures</span></div>
+        </div>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div class="view" id="view-logs">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="topbar">
+        <div>
+          <div class="back-link" onclick="showTab('home')" style="margin-bottom:8px;"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> Home</div>
+          <h2>Daily Field Log</h2>
+        </div>
+        <div class="avatar"><span class="material-symbols-outlined" style="font-size:16px; color:var(--outline);">person</span></div>
+      </div>
+      <div class="scroll pad" style="padding-bottom:16px;">
+        <div class="log-card">
+          <img src="https://images.unsplash.com/photo-1541976590-713941681591?w=500&q=60">
+          <div class="body">
+            <div class="top-row"><span class="phase-pill">ROOFING</span><span class="date">AUG 15</span></div>
+            <p>Roofing trusses set on the north wing. Dry-in expected by end of week, underlayment staged for Thursday.</p>
+            <div class="pm"><div class="pm-dot">DC</div>David Chen, Project Manager</div>
+          </div>
+        </div>
+        <div class="log-card">
+          <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&q=60">
+          <div class="body">
+            <div class="top-row"><span class="phase-pill">FRAMING</span><span class="date">AUG 12</span></div>
+            <p>Second floor framing complete and inspected — passed county rough framing walkthrough with no punch items.</p>
+            <div class="pm"><div class="pm-dot">DC</div>David Chen, Project Manager</div>
+          </div>
+        </div>
+        <div class="log-card">
+          <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500&q=60">
+          <div class="body">
+            <div class="top-row"><span class="phase-pill">FRAMING</span><span class="date">AUG 8</span></div>
+            <p>Exterior wall sheathing underway on the east and south faces — crew of 6 on site through the weekend.</p>
+            <div class="pm"><div class="pm-dot">DC</div>David Chen, Project Manager</div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div class="view" id="view-finance">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="topbar">
+        <div>
+          <div class="back-link" onclick="showTab('home')" style="margin-bottom:8px;"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> Home</div>
+          <h2>Financial Overview</h2>
+        </div>
+        <div class="avatar"><span class="material-symbols-outlined" style="font-size:16px; color:var(--outline);">person</span></div>
+      </div>
+      <div class="scroll">
+        <div class="pad">
+          <div class="card">
+            <div class="caps">Original budget</div>
+            <div class="fin-num" style="margin-top:6px;">$1,200,000</div>
+          </div>
+        </div>
+        <div class="pad">
+          <div class="card">
+            <div class="caps">Running total</div>
+            <div class="fin-num" style="margin-top:6px;">$840,000</div>
+            <div class="budget-bar"><div class="fill" style="width:70%;"></div></div>
+            <div class="budget-legend"><span>70% billed</span><span>$360K remaining</span></div>
+          </div>
+        </div>
+        <div class="pad">
+          <div class="caps" style="margin-top:4px; display:block;">Change orders · 2 active</div>
+          <div class="co-item">
+            <div class="co-top"><span class="name">CO-004 · Quartz countertop upgrade</span><span class="amt">+$8,500</span></div>
+            <div class="co-desc">Kitchen island upgrade</div>
+            <div class="co-status approved"><span class="material-symbols-outlined fill" style="font-size:12px;">check_circle</span>Approved</div>
+          </div>
+          <div class="co-item pending">
+            <div class="co-top"><span class="name">CO-005 · Extended decking material</span><span class="amt">+$12,200</span></div>
+            <div class="co-desc">Exterior — awaiting PM sign-off</div>
+            <div class="co-status pending"><span class="material-symbols-outlined" style="font-size:12px;">pending</span>Pending review</div>
+          </div>
+        </div>
+        <div class="pad" style="padding-bottom:18px;">
+          <div class="caps" style="margin-top:4px; display:block;">Current invoice</div>
+          <div class="card">
+            <div class="caps">INVOICE #INV-2409</div>
+            <div class="fin-num" style="margin-top:4px;">$45,000.00</div>
+            <div style="font-size:11.5px; color:var(--error); font-weight:600; margin-top:2px;">Due in 3 days (Oct 15)</div>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--outline-variant); display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; justify-content:space-between; font-size:12.5px;"><span style="color:var(--outline);">Milestone 4 (Framing)</span><span>$40,000</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12.5px;"><span style="color:var(--outline);">CO-004 (Countertops)</span><span>$5,000</span></div>
+            </div>
+            <button class="pay-btn"><span class="material-symbols-outlined" style="font-size:16px;">payments</span>Pay Invoice</button>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div class="view" id="view-chat">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="chat-head">
+        <div class="pm-dot" style="width:36px;height:36px; font-size:11px;">DC</div>
+        <div><div class="n">David Chen</div><div class="r">PROJECT MANAGER · HIGHLAND ESTATE</div></div>
+      </div>
+      <div class="msgs">
+        <div style="text-align:center;"><span class="caps" style="background:var(--surface-container-low); padding:4px 10px; border-radius:99px;">Today</span></div>
+        <div class="msg them">Hi! Quick update on the master suite — framing's complete, moving to rough-in.<div class="msg-time">09:42 AM</div></div>
+        <div class="msg me">That sounds great, David. Are we still on track for the inspection next week?<div class="msg-time" style="color:#ccc;">10:15 AM ✓✓</div></div>
+        <div class="msg them">Yes, Tuesday. Also sent the updated electrical plans for your review.
+          <div class="msg-attach"><span class="material-symbols-outlined" style="font-size:16px;">description</span>Highland_Electrical_V2.pdf</div>
+          <div class="msg-time">11:30 AM</div>
+        </div>
+        <div class="msg me">Reviewing now — I'll add notes to the file if needed.<div class="msg-time" style="color:#ccc;">11:45 AM ✓✓</div></div>
+      </div>
+      <div class="chat-input">
+        <button style="background:var(--surface-container-lowest); border:1.5px solid var(--outline-variant); color:var(--outline);"><span class="material-symbols-outlined" style="font-size:18px;">add_circle</span></button>
+        <input type="text" placeholder="Type a message…">
+        <button><span class="material-symbols-outlined" style="font-size:18px;">send</span></button>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div class="view" id="view-games">
+      <div class="statusbar"><span>9:41</span><span>●●●●</span></div>
+      <div class="topbar">
+        <div class="proj"><span class="material-symbols-outlined">architecture</span><h2>Games &amp; Rewards</h2></div>
+        <div class="avatar"><span class="material-symbols-outlined" style="font-size:16px; color:var(--outline);">person</span></div>
+      </div>
+      <div class="scroll pad" style="padding-bottom:16px;">
+        <div class="reward-card">
+          <h3 style="font-size:14.5px;">Reward Progress</h3>
+          <p>Complete 3 more games to unlock a full 3D walkthrough of your new kitchen layout.</p>
+          <div class="caps" style="display:flex; justify-content:space-between; color:var(--on-background);"><span>KITCHEN WALKTHROUGH</span><span style="color:var(--outline);">70%</span></div>
+          <div class="rw-bar"><div class="fill" style="width:70%;"></div></div>
+        </div>
+
+        <div class="card trivia-card">
+          <div class="head">
+            <div class="trivia-icon"><span class="material-symbols-outlined" style="font-size:17px;">quiz</span></div>
+            <div>
+              <div class="caps">Question of the week</div>
+              <div style="font-size:13.5px; font-weight:600; margin-top:4px; line-height:1.4;">What insulation is being installed in your new attic space?</div>
+            </div>
+          </div>
+          <div class="trivia-opt">Fiberglass Batts <span class="material-symbols-outlined" style="font-size:15px; color:var(--outline);">arrow_forward</span></div>
+          <div class="trivia-opt correct">Spray Foam (Open Cell) <span class="material-symbols-outlined" style="font-size:15px;">check</span></div>
+          <div class="trivia-opt">Blown-in Cellulose <span class="material-symbols-outlined" style="font-size:15px; color:var(--outline);">arrow_forward</span></div>
+        </div>
+
+        <div class="caps" style="margin-top:20px; display:block;">Mini game</div>
+        <div class="game-item">
+          <div class="gi"><span class="material-symbols-outlined" style="font-size:18px;">extension</span></div>
+          <div><div style="font-size:13.5px; font-weight:700;">Blueprint Match</div><div style="font-size:11px; color:var(--outline);">Match symbols to fixtures in your floor plan</div></div>
+        </div>
+      </div>
+      <div class="tabbar-slot"></div>
+    </div>
+
+    <div id="milestone-modal">
+      <div class="badge-plate"><span class="material-symbols-outlined">home_work</span></div>
+      <div class="badge-eyebrow">Milestone Unlocked</div>
+      <div class="badge-title">Framing Complete</div>
+      <div class="badge-sub">Highland Estate has passed its rough framing inspection. Roofing starts next.</div>
+      <div class="badge-btns">
+        <button class="b-share">Share badge</button>
+        <button class="b-close" onclick="closeMilestone()">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="hint">Prototype · tap a completed milestone on Home to preview a badge unlock</div>
+
+<template id="tabbar-template">
+  <div class="tabbar">
+    <button class="tab" data-tab="home" onclick="showTab('home')"><span class="material-symbols-outlined">home</span>Home</button>
+    <button class="tab" data-tab="camera" onclick="showTab('camera')"><span class="material-symbols-outlined">photo_camera</span>Camera</button>
+    <button class="tab" data-tab="docs" onclick="showTab('docs')"><span class="material-symbols-outlined">description</span>Docs</button>
+    <button class="tab" data-tab="chat" onclick="showTab('chat')"><span class="material-symbols-outlined">chat</span>Chat</button>
+    <button class="tab" data-tab="games" onclick="showTab('games')"><span class="material-symbols-outlined">sports_esports</span>Games</button>
+  </div>
+</template>
+
+<script>
+  function go(view){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+view).classList.add('active');
+  }
+  document.querySelectorAll('.tabbar-slot').forEach(slot=>{
+    slot.appendChild(document.getElementById('tabbar-template').content.cloneNode(true));
+  });
+  function showTab(name){
+    go(name);
+    document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('on', t.dataset.tab === name));
+  }
+  showTab('home');
+  function openMilestone(){ document.getElementById('milestone-modal').classList.add('show'); }
+  function closeMilestone(){ document.getElementById('milestone-modal').classList.remove('show'); }
+</script>
+
+</body>
+</html>
