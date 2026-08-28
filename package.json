@@ -1,0 +1,17 @@
+{
+  "name": "brian-niel-client-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brian Niel Construction — homeowner client portal",
+  "scripts": {
+    "dev": "npx serve www",
+    "cap:add:android": "npx cap add android",
+    "cap:sync": "npx cap sync android",
+    "cap:open:android": "npx cap open android"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  }
+}
