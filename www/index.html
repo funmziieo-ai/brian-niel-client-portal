@@ -1,3 +1,10 @@
+# www/index.html — Updated (splash-screen bug fixed)
+
+This fixes the bug where the app skipped straight to Home instead of showing the splash/logo screen first.
+
+Copy everything inside the code block, then paste it into GitHub replacing the entire content of `www/index.html`.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -562,10 +569,13 @@
     go(name);
     document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('on', t.dataset.tab === name));
   }
-  showTab('home');
+  // Just pre-highlight the Home tab for later — do NOT navigate away from the splash screen on load.
+  document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('on', t.dataset.tab === 'home'));
   function openMilestone(){ document.getElementById('milestone-modal').classList.add('show'); }
   function closeMilestone(){ document.getElementById('milestone-modal').classList.remove('show'); }
 </script>
 
 </body>
 </html>
+
+```
